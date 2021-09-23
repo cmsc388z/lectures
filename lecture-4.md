@@ -70,7 +70,7 @@ Using `mod` we can build a tree of definitions, which is often called the module
 
 For example, from the previous `lib.rs` we could reference `Rect` with
 
-```
+```rust
 pub mod shapes {
         pub mod rectangles {
                 pub struct Rect {
@@ -98,7 +98,7 @@ To make this example compile, each nested module and function must be marked as 
 
 We can also construct relative paths using the `super` or `self` keywords. Here's an example of the former.
 
-```
+```rust
 pub mod shapes {
         pub fn new_rect(width: u32, height: u32) -> rectangles::Rect {
                 rectangles::Rect {
@@ -142,7 +142,7 @@ Enums, on the other hand, have all their variants public if the enum itself is p
 Using a semicolan after the `mod temp` rather than a block tells rust to load the contents of the module from another file with the same name as the module. We can then bring specific definitions into scope with the `use` keyword. 
 
 In `temp.rs`
-```
+```rust
 pub mod shapes {
         pub mod ovals {
                 pub struct Circle { 
@@ -153,7 +153,7 @@ pub mod shapes {
 ```
 
 In `lib.rs`
-```
+```rust
 mod temp;
 
 pub mod shapes {
@@ -189,7 +189,7 @@ pub fn create() {
 
 Standard crates can be brought into scope with the use keyword.
 
-```
+```rust
 use std::collections::HashMap;
 
 fn main() {
@@ -200,7 +200,7 @@ fn main() {
 
 Sometimes you might want to use libraries not contained within `std`. To do this, we'll need to use `Cargo.toml`.
 
-The Cargo.toml file for each package is called its manifest. It is written in the TOML format. Every manifest file consists of the following sections:
+The Cargo.toml file for each package is called its manifest. It is written in the TOML format. Every manifest file consists of many sections, some of which are listed below. 
 
  - cargo-features — Unstable, nightly-only features.
  - [package] — Defines a package.
@@ -212,5 +212,94 @@ The Cargo.toml file for each package is called its manifest. It is written in th
    - documentation — URL of the package documentation.
    - readme — Path to the package's README file.
 
+We can look at the `Cargo.toml` from the snake game project.
+
+```
+[package]
+name = "cmsc388z-snake-game"
+version = "0.1.0"
+
+[dependencies]
+piston_window = "0.120.0"
+rand = "0.3"
+```
+
+To use these crates we must first load them like in `main.rs`.
+
+```
+extern crate piston_window;
+extern crate rand;
+```
+
+Then they can be brought into scope like in `game.rs`.
+
+```
+use piston_window::*;
+use rand::{thread_rng, Rng};
+```
+
 ## Testing
 
+A test in Rust is a function that’s annotated with the test attribute. Attributes are metadata about pieces of Rust code; one example is the derive attribute we used with structs in Chapter 5. To change a function into a test function, add #[test] on the line before fn. When you run your tests with the cargo test command, Rust builds a test runner binary that runs the functions annotated with the test attribute and reports on whether each test function passes or fails.
+
+When we make a new library project with Cargo, a test module with a test function in it is automatically generated for us. This module helps you start writing your tests so you don’t have to look up the exact structure and syntax of test functions every time you start a new project.
+
+We should now have the knowledge to understand the auto-generated code.
+
+```
+$ cargo new adder --lib
+     Created library `adder` project
+$ cd adder
+```
+
+Then in `src/lib.rs`. 
+
+```rust
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
+```
+
+Previously we've had you all write unit tests. Unit tests are testing one module in isolation at a time: they're small and can test private code. This is in contrast to integration tests, which are external to your crate and use only its public interface in the same way any other code would. Their purpose is to test that many parts of your library work correctly together.
+
+In `src/lib.rs`
+```rust
+// Define this in a crate called `adder`.
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+```
+
+In `tests/integration_test.rs`
+```
+#[test]
+fn test_add() {
+    assert_eq!(adder::add(3, 2), 5);
+}
+```
+
+Then we can run the integration tests.
+
+```
+$ cargo test
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/integration_test-bcd60824f5fbfe19
+
+running 1 test
+test test_add ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+   Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```

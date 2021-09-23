@@ -16,7 +16,7 @@ Rust has a number of features that allow you to manage your code’s organizatio
  - Paths: A way of naming an item, such as a struct, function, or module
 
 ### Some review
-```rust
+```
 $ cargo new my-project
      Created binary (application) `my-project` package
 $ ls my-project
@@ -34,31 +34,183 @@ Here, we have a package that only contains src/main.rs, meaning it only contains
 
 Modules let us organize code within a crate into groups for readability and easy reuse. Modules also control the privacy of items, which is whether an item can be used by outside code (public) or is an internal implementation detail and not available for outside use (private).
 
+```
+cargo new --lib shapes
+```
+
 We can define a module using the `mod` keyword followed by the name of the module. 
 
 in `src/lib.rs`
 
 ```rust
-mod front_of_house {
-    mod hosting {
-        fn add_to_waitlist() {}
+mod shapes {
+        mod rectangles {
+                struct Rect {
+                        width: u32,
+                        height: u32
+                }
 
-        fn seat_at_table() {}
-    }
+                impl Rect {
+                        fn get_area(&self) -> u32 {}
+                        fn get_perimeter(&self) -> u32 {}
+                }
 
-    mod serving {
-        fn take_order() {}
-
-        fn serve_order() {}
-
-        fn take_payment() {}
-    }
+        }
 }
 ```
 
 Modules allow us to group related definitions together. 
 
+### Module tree
 
+Using `mod` we can build a tree of definitions, which is often called the module tree. Paths to definitions in the module tree can take two forms:
+
+ - An absolute path starts from a crate root by using a crate name or a literal crate.
+ - A relative path starts from the current module and uses self, super, or an identifier in the current module.
+
+For example, from the previous `lib.rs` we could reference `Rect` with
+
+```
+pub mod shapes {
+        pub mod rectangles {
+                pub struct Rect {
+                        pub width: u32,
+                        pub height: u32
+                }
+
+                impl Rect {
+                        pub fn get_area(&self) -> u32 {self.width * self.height }
+                        pub fn get_perimeter(&self) -> u32 {self.width * 2 + self.height * 2 }
+                }
+
+        }
+}
+
+pub fn create_rectangle() {
+        crate::shapes::rectangles::Rect {
+                width: 5,
+                height: 5
+        };
+}
+```
+
+To make this example compile, each nested module and function must be marked as `pub`. 
+
+We can also construct relative paths using the `super` or `self` keywords. Here's an example of the former.
+
+```
+pub mod shapes {
+        pub fn new_rect(width: u32, height: u32) -> rectangles::Rect {
+                rectangles::Rect {
+                        width,
+                        height
+                }
+        }
+
+        pub mod rectangles {
+                pub struct Rect {
+                        pub width: u32,
+                        pub height: u32
+                }
+
+                impl Rect {
+                        pub fn get_area(&self) -> u32 {self.width * self.height }
+                        pub fn get_perimeter(&self) -> u32 {self.width * 2 + self.height * 2 }
+                }
+
+        }
+}
+
+pub fn create_rectangle() {
+        crate::shapes::rectangles::Rect {
+                width: 5,
+                height: 5
+        };
+
+        shapes::new_rect(5, 5);
+}
+```
+
+#### Using pub with structs and enums
+
+We can also use pub to designate structs and enums as public, but there are a few extra details. If we use pub before a struct definition, we make the struct public, but the struct’s fields will still be private. We can make each field public or not on a case-by-case basis.
+
+Enums, on the other hand, have all their variants public if the enum itself is prefaced with `pub`.
+
+### The use keyword
+
+Using a semicolan after the `mod temp` rather than a block tells rust to load the contents of the module from another file with the same name as the module. We can then bring specific definitions into scope with the `use` keyword. 
+
+In `temp.rs`
+```
+pub mod shapes {
+        pub mod ovals {
+                pub struct Circle { 
+                        pub radius: u32
+                }
+        }
+}
+```
+
+In `lib.rs`
+```
+mod temp;
+
+pub mod shapes {
+        pub mod rectangles {
+                pub struct Rect {
+                        pub width: u32,
+                        pub height: u32
+                }
+
+                impl Rect {
+                        pub fn get_area(&self) -> u32 {self.width * self.height }
+                        pub fn get_perimeter(&self) -> u32 {self.width * 2 + self.height * 2 }
+                }
+
+        }
+}
+
+use temp::shapes::*;
+
+pub fn create() {
+        crate::shapes::rectangles::Rect {
+                width: 5,
+                height: 5
+        };
+
+        ovals::Circle {
+                radius: 5
+        };
+}
+```
+
+### Using crates
+
+Standard crates can be brought into scope with the use keyword.
+
+```
+use std::collections::HashMap;
+
+fn main() {
+        let mut map = HashMap::new();
+        map.insert(1, 1);
+}
+```
+
+Sometimes you might want to use libraries not contained within `std`. To do this, we'll need to use `Cargo.toml`.
+
+The Cargo.toml file for each package is called its manifest. It is written in the TOML format. Every manifest file consists of the following sections:
+
+ - cargo-features — Unstable, nightly-only features.
+ - [package] — Defines a package.
+   - name — The name of the package.
+   - version — The version of the package.
+   - authors — The authors of the package.
+   - edition — The Rust edition.
+   - description — A description of the package.
+   - documentation — URL of the package documentation.
+   - readme — Path to the package's README file.
 
 ## Testing
 

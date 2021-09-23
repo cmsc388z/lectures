@@ -1,5 +1,47 @@
 # Lecture 4: Rust build system. Modules, crates. Testing.
 
+## Lifetimes review
+
+```rust
+fn main() {
+  let ret = get_value();
+  println!(“The return value is ”, ret);
+}
+
+fn dangle() -> &String {
+  let s1 = String::from(“hello”);
+  &s1
+}
+```
+Will this code compile? Why?
+
+
+```rust
+fn main() {
+  let val = String::from("Hello world");
+  
+  {
+    let val2 = &val;
+    println!(“Second value is: {}”, val2);
+  }
+}
+```
+Will this code compile? Why?
+
+
+```rust
+fn main() {
+  let val;
+  {
+    let val2 = String::from("Hello world");
+    val = &x;
+  }
+  println!(“Value is {}”, val);
+}
+```
+Will this code compile? Why?
+
+
 ## Rust build system
 
 

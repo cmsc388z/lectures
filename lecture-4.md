@@ -8,7 +8,7 @@ fn main() {
   println!(“The return value is ”, ret);
 }
 
-fn dangle() -> &String {
+fn get_value() -> &String {
   let s1 = String::from(“hello”);
   &s1
 }
@@ -49,13 +49,13 @@ pub fn main() {
    let z;
    {
       let y = String::from(“there”);
-      z = longest(&x,&y);
+      z = longer(&x,&y);
     }
     println!(“z is {}”,z);
 }
 
 
-fn longest(x:&str, y:&str) -> &str {
+fn longer(x:&str, y:&str) -> &str {
   if x.len() > y.len() { x } else { y }
 }
 ```

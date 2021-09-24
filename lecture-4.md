@@ -42,7 +42,7 @@ fn main() {
 Will this code compile? Why?
 
 
-```
+```rust
 pub fn main() {
 { 
    let x = String::from(“Hello world”);
@@ -61,7 +61,8 @@ fn longest(x:&str, y:&str) -> &str {
 ```
 Will this code compile? Why?
 
-## Rust build system
+## Build system basics
+
 
 
 ## Modules and Crates
@@ -273,7 +274,7 @@ The Cargo.toml file for each package is called its manifest. It is written in th
    - documentation — URL of the package documentation.
    - readme — Path to the package's README file.
 
-We can look at the `Cargo.toml` from the snake game project.
+We can look at the `Cargo.toml` from the snake game project. This example uses dependencies from the [crates.io](https://crates.io/) registry. 
 
 ```
 [package]
@@ -284,6 +285,22 @@ version = "0.1.0"
 piston_window = "0.120.0"
 rand = "0.3"
 ```
+
+We can also depend on a library located in a `git` repository. Your package can depend on any specified version or commit. 
+
+```
+[dependencies]
+piston_window = { version = "0.120.0", git = "https://github.com/PistonDevelopers/piston" }
+rand = { git = "https://github.com/example/rand", rev = "9f35b8e" }
+```
+
+Or a local directory. 
+
+```
+[dependencies]
+piston_window = { version = "0.120.0", path = "~/github/piston" }
+```
+
 
 To use these crates we must first load them like in `main.rs`.
 
@@ -298,6 +315,13 @@ Then they can be brought into scope like in `game.rs`.
 use piston_window::*;
 use rand::{thread_rng, Rng};
 ```
+
+### Cargo.lock
+
+You may see `Cargo.lock` file appear in your package directory. `Cargo.toml` and `Cargo.lock` serve two different purposes
+
+ - Cargo.toml is about describing your dependencies in a broad sense, and is written by you.
+ - Cargo.lock contains exact information about your dependencies. It is maintained by Cargo and should not be manually edited.
 
 ## Testing
 
@@ -364,3 +388,5 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
+
+### Build script examples

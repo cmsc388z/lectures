@@ -64,7 +64,14 @@ Will this code compile? Why?
 ## Build system
 ### Some review
 
-cargo check, build, run, fmt, clippy, clean, test
+Important cargo commands:
+ - check: Check package and dependencies for errors, without doing code generation
+ - build: Check package and dependencies for errors and build the package
+ - run: Build and run
+ - fmt: Format rust code
+ - clippy: Collection of checks for common mistakes in Rust code
+ - clean: Clean directories
+ - test: Run integration or unit tests
 
 ### Build scripts
 

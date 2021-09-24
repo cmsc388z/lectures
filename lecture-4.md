@@ -74,7 +74,7 @@ Cargo does not aim to replace other tools that are well-optimized for these task
 
 Here is an example build script.
 
-```
+```rust
 fn main() {
     println!("cargo:rerun-if-changed=src/hello.c");
     
@@ -107,7 +107,7 @@ Here are the most important instructions recognized by cargo.
 
 These are the build scripts outputs. Inputs to the build scripts are environment variables. Here is an example that uses them.
 
-```
+```rust
 // build.rs
 
 use std::env;
@@ -423,7 +423,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 ```
 
 In `tests/integration_test.rs`
-```
+```rust
 #[test]
 fn test_add() {
     assert_eq!(adder::add(3, 2), 5);

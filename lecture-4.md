@@ -42,6 +42,25 @@ fn main() {
 Will this code compile? Why?
 
 
+```
+pub fn main() {
+{ 
+   let x = String::from(“Hello world”);
+   let z;
+   {
+      let y = String::from(“there”);
+      z = longest(&x,&y);
+    }
+    println!(“z is {}”,z);
+}
+
+
+fn longest(x:&str, y:&str) -> &str {
+  if x.len() > y.len() { x } else { y }
+}
+```
+Will this code compile? Why?
+
 ## Rust build system
 
 

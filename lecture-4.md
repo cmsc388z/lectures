@@ -61,9 +61,72 @@ fn longest(x:&str, y:&str) -> &str {
 ```
 Will this code compile? Why?
 
-## Build system basics
+## Build system
+### Some review
 
+cargo check, build, run, fmt, clippy, clean, test
 
+### Build scripts
+
+Some packages need to compile third-party non-Rust code, for example C libraries. Other packages need to link to C libraries which can either be located on the system or possibly need to be built from source. Others still need facilities for functionality such as code generation before building (think parser generators).
+
+Cargo does not aim to replace other tools that are well-optimized for these tasks, but it does integrate with them with custom build scripts. Placing a file named build.rs in the root of a package will cause Cargo to compile that script and execute it just before building the package.
+
+Here is an example build script.
+
+```
+fn main() {
+    println!("cargo:rerun-if-changed=src/hello.c");
+    
+    cc::Build::new()
+        .file("src/hello.c")
+        .compile("hello");
+}
+```
+
+These may be used in cases where you need to
+ - Bundle a C library
+ - Gnerate a rust module from a specification
+ - Perform platform-specific configuration for the crate
+ - Generate bindings to some other langauge
+
+Just before a package is built, Cargo will compile a build script into an executable. It will then run the script, which may perform any number of tasks. The script may communicate with Cargo by printing specially formatted commands prefixed with cargo: to stdout.
+
+Here are the most important instructions recognized by cargo. 
+
+ - cargo:rerun-if-changed=PATH — Tells Cargo when to re-run the script.
+ - cargo:rerun-if-env-changed=VAR — Tells Cargo when to re-run the script.
+ - cargo:rustc-link-lib=[KIND=]NAME — Adds a library to link.
+ - cargo:rustc-link-search=[KIND=]PATH — Adds to the library search path.
+ - cargo:rustc-flags=FLAGS — Passes certain flags to the compiler.
+ - cargo:rustc-cfg=KEY[="VALUE"] — Enables compile-time cfg settings.
+ - cargo:rustc-env=VAR=VALUE — Sets an environment variable.
+ - cargo:rustc-cdylib-link-arg=FLAG — Passes custom flags to a linker for cdylib crates.
+ - cargo:warning=MESSAGE — Displays a warning on the terminal.
+ - cargo:KEY=VALUE — Metadata, used by links scripts.
+
+These are the build scripts outputs. Inputs to the build scripts are environment variables. Here is an example that uses them.
+
+```
+// build.rs
+
+use std::env;
+use std::fs;
+use std::path::Path;
+
+fn main() {
+    let out_dir = env::var_os("OUT_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join("hello.rs");
+    fs::write(
+        &dest_path,
+        "pub fn message() -> &'static str {
+            \"Hello, World!\"
+        }
+        "
+    ).unwrap();
+    println!("cargo:rerun-if-changed=build.rs");
+}
+```
 
 ## Modules and Crates
 As you write large programs, organizing your code will be important because keeping track of your entire program in your head will become impossible. By grouping related functionality and separating code with distinct features, you’ll clarify where to find code that implements a particular feature and where to go to change how a feature works.
@@ -389,4 +452,3 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
-### Build script examples

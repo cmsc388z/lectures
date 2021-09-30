@@ -1,5 +1,7 @@
 # Enums, pattern matching, Collections, Error handling
 
+Source: [Rust Book](https://doc.rust-lang.org/book/ch06-00-enums.html)
+
 ## Enums
 
 With enums you can define a type that has multiple possible variants. We'll first look at how enums can be defined, then we'll look at a special enum, called Option, which which expresses that a value can be either something or nothing. Then we’ll look at how pattern matching in the match expression makes it easy to run different code for different values of an enum. Finally, we’ll cover how the if let construct is another convenient and concise idiom available to you to handle enums in your code.

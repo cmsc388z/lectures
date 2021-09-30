@@ -17,14 +17,14 @@ enum IpAddrKind {
 
 We can create instances of each of the two variants of IpAddrKind like this:
 
-```
+```rust
 let four = IpAddrKind::V4;
 let six = IpAddrKind::V6;
 ```
 
 We can also give our enums a field. This new definition of the IpAddr enum says that both V4 and V6 variants will have associated String values.
 
-```
+```rust
 enum IpAddr {
     V4(String),
     V6(String),
@@ -37,7 +37,7 @@ let loopback = IpAddr::V6(String::from("::1"));
 
 Or multiple fields.
 
-```
+```rust
 enum IpAddr {
     V4(u8, u8, u8, u8),
     V6(String),
@@ -62,7 +62,7 @@ The problem with null values is that if you try to use a null value as a not-nul
 
 As such, Rust does not have nulls, but it does have an enum that can encode the concept of a value being present or absent. This enum is `Option<T>`, and it is defined by the standard library as follows:
 
-```
+```rust
 enum Option<T> {
     None,
     Some(T),
@@ -73,7 +73,7 @@ The `<T>` syntax is a feature of Rust we haven’t talked about yet. It’s a ge
 
 Here's some basic usage of the option type. 
 
-```
+```rust
 let mut some_number = Some(5);
 let mut some_string = Some("a string");
 
@@ -86,7 +86,7 @@ absent_number = Some(5);
 
 You cannot simply use an `Option<T>` type the same way you would type T. The following example, where an `Option<i8>` is added to an i8 won't compile. 
 
-```
+```rust
 let x: i8 = 5;
 let y: Option<i8> = Some(5);
 
@@ -95,7 +95,7 @@ let sum = x + y;
 
 With the error:
 
-```
+```rust
 $ cargo run
    Compiling enums v0.1.0 (file:///projects/enums)
 error[E0277]: cannot add `Option<i8>` to `i8`
@@ -120,7 +120,7 @@ In order to add these values you have to convert an `Option<T>` to a T. Generall
 
 One of Rust's most important control flow operators is called match, which allows you to compare some value against a series of pattens and then execute code based on which pattern matches. Patterns can be made up of literal values, variable names, wildcards, and many other things; Chapter 18 covers all the different kinds of patterns and what they do. The power of match comes from the expressiveness of the patterns and the fact that the compiler confirms that all possible cases are handled.
 
-```
+```rust
 fn main() {
         enum IpAddr {
             V4(u8, u8, u8, u8),
@@ -139,7 +139,7 @@ fn main() {
 
 This example shows a basic match with the ipaddr enum we created previously. We can also match with specific values in the pattern match.
 
-```
+```rust
 fn main() {
         enum IpAddr {
             V4(u8, u8, u8, u8),
@@ -159,7 +159,7 @@ fn main() {
 
 Rust will require that our matches be *exaustive*. 
 
-```
+```rust
 fn main() {
         enum IpAddr {
             V4(u8, u8, u8, u8),
@@ -178,7 +178,7 @@ fn main() {
 
 For example, if we don't attempt to match with the V6 variant, the compiler will throw an error. 
 
-```
+```rust
 error[E0004]: non-exhaustive patterns: `V6(_)` not covered
   --> temp.rs:10:8
    |
@@ -198,7 +198,7 @@ error[E0004]: non-exhaustive patterns: `V6(_)` not covered
 
 We don't have to match explicitly however. We can use _ to catch all remaining cases. 
 
-```
+```rust
 fn main() {
         enum IpAddr {
             V4(u8, u8, u8, u8),
@@ -218,7 +218,7 @@ fn main() {
 
 Pattern matches can also be used to set variables as shown below. 
 
-```
+```rust
 fn main() {
         enum IpAddr {
             V4(u8, u8, u8, u8),
@@ -239,7 +239,7 @@ fn main() {
 
 The if let syntax lets you combine if and let into a less verbose way to handle values that match one pattern while ignoring the rest. Without it we might do something like this.
 
-```
+```rust
     let some_u8_value = Some(0u8);
     match some_u8_value {
         Some(3) => println!("three"),
@@ -251,7 +251,7 @@ We want to do something with the `Some(3)` match but do nothing with any other `
 
 Instead, we could write this in a shorter way using if let.
 
-```
+```rust
     let some_u8_value = Some(0u8);
     if let Some(3) = some_u8_value {
         println!("three");
@@ -266,7 +266,7 @@ Rust doesn’t have exceptions. Instead, it has the type `Result<T, E>` for reco
 
 Result enum is defined as having two variants, Ok and Err, as follows:
 
-```
+```rust
 enum Result<T, E> {
     Ok(T),
     Err(E),
@@ -275,7 +275,7 @@ enum Result<T, E> {
 
 Let’s call a function that returns a Result value because the function could fail. In Listing 9-3 we try to open a file.
 
-```
+```rust
 use std::fs::File;
 
 fn main() {
@@ -285,13 +285,13 @@ fn main() {
 
 How do we know what type File::open returns? We can find out by asking the compiler, or with online documentation.
 
-```
+```rust
     let f: u32 = File::open("hello.txt");
 ```
 
 This will produce an error since the method returns a Result type. Since it's an enum, we can match with it as shown below.
 
-```
+```rust
 use std::fs::File;
 
 fn main() {
@@ -306,7 +306,7 @@ fn main() {
 
 We can also nest our matching expressions to match with a specific kind of error.
 
-```
+```rust
 use std::fs::File;
 use std::io::ErrorKind;
 
@@ -334,7 +334,7 @@ The type of the value that File::open returns inside the Err variant is io::Erro
 
 Using match can sometimes be a bit verbose, and doesn't always express the intent of a code block well. In some cases we may prefer to use the `unwrap()` or `expect()` methods. Here is an example.
 
-```
+```rust
 use std::fs::File;
 
 fn main() {
@@ -344,7 +344,7 @@ fn main() {
 
 If we run this code and the file doesn't exist, it will panic with the following error. 
 
-```
+```rust
 thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: Error {
 repr: Os { code: 2, message: "No such file or directory" } }',
 src/libcore/result.rs:906:4
@@ -352,7 +352,7 @@ src/libcore/result.rs:906:4
 
 We can also use `expect()`, to print a specific message when our code runs. 
 
-```
+```rust
 use std::fs::File;
 
 fn main() {
@@ -371,7 +371,7 @@ thread 'main' panicked at 'Failed to open hello.txt: Error { repr: Os { code:
 
 We briefly above saw the `panic!` macro. This macro is used to generate an unrecoverable error. Here is an example. 
 
-```
+```rust
 fn main() {
     panic!("crash and burn");
 }
@@ -379,7 +379,7 @@ fn main() {
 
 Your programs may also panic for reasons like accessing an out-of-bounds vector element.
 
-```
+```rust
 fn main() {
     let v = vec![1, 2, 3];
 
@@ -393,7 +393,7 @@ When writing a function whose implementation may fail, it is generally advised t
 
 A naive way to accompolish this is shown below.
 
-```
+```rust
 use std::fs::File;
 use std::io;
 use std::io::Read;
@@ -417,7 +417,7 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 Using the match expressions here is quite verbose. To make this more concise, we can use the `?` operator, which makes the above example much more concise.
 
-```
+```rust
 use std::fs::File;
 use std::io;
 use std::io::Read;
@@ -432,3 +432,4 @@ fn read_username_from_file() -> Result<String, io::Error> {
 ```
 
 This operator should only be used on functions that return a result. If we attempt to use this in the main function, for example, the compiler will throw an error. 
+

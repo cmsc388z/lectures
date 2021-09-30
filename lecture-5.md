@@ -439,20 +439,20 @@ This operator should only be used on functions that return a result. If we attem
 
 How do you know when to call `panic!` and when to return a `Result`? When you choose to return a Result value, you give the calling code options rather than making the decision for it. The calling code could choose to attempt to recover in a way that’s appropriate for its situation, or it could decide that an Err value in this case is unrecoverable, so it can call panic! and turn your recoverable error into an unrecoverable one. Therefore, returning Result is a good default choice when you’re defining a function that might fail.
 
-## Collections
+## Errors in collections
 
 Rust’s standard library includes a number of very useful data structures called collections. Most other data types represent one specific value, but collections can contain multiple values. Unlike the built-in array and tuple types, the data these collections point to is stored on the heap, which means the amount of data does not need to be known at compile time and can grow or shrink as the program runs. 
 
 We've already spent a lot of time using the `Vec` type in the class examples and projects. As a reminder, vectors can be initialized in multiple ways:
 
-```
+```rust
 let mut v1 = Vec::new();
 let mut v2 = vec![1, 2, 3];
 ```
 
 Elements can be acccessed using `[]`, or with the `.get()` method. 
 
-```
+```rust
 fn main() {
 
     let num = vec![10, 20];
@@ -470,7 +470,7 @@ fn main() {
 
 So what's the difference between using `[]` and using `.get()`? The difference is that `.get()` returns an `Option`, as introduced earlier. 
 
-```
+```rust
 fn main() {
 
     let num = vec![10, 20];
@@ -492,7 +492,7 @@ In this example, `num.get(2)` will return `None`.
 
 If we access the element using `[]`, however, our program will panic.
 
-```
+```rust
 fn main() {
 
     let num = vec![10, 20];

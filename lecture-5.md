@@ -6,7 +6,7 @@ Enums allow you to define a type by enumerating its possible variants. First, we
 
 Enums are a feature in many languages, but their capabilities differ in each language. Rust’s enums are most similar to algebraic data types in functional languages, such as F#, OCaml, and Haskell.
 
-```
+```rust
 enum IpAddrKind {
     V4,
     V6,

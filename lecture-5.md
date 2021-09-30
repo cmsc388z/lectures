@@ -332,7 +332,9 @@ The type of the value that File::open returns inside the Err variant is io::Erro
 
 ### Shortcuts for panic on error
 
-Using match can sometimes be a bit verbose, and doesn't always express the intent of a code block well. In some cases we may prefer to use the `unwrap()` or `expect()` methods. Here is an example.
+Using match can sometimes be a bit verbose, and doesn't always express the intent of a code block well. In some cases we may prefer to use the `unwrap()` or `expect()` methods. 
+
+The Result<T, E> type has many helper methods defined on it to do various tasks. One of those methods, called unwrap, is a shortcut method. 
 
 ```rust
 use std::fs::File;
@@ -432,4 +434,75 @@ fn read_username_from_file() -> Result<String, io::Error> {
 ```
 
 This operator should only be used on functions that return a result. If we attempt to use this in the main function, for example, the compiler will throw an error. 
+
+### Panic vs Result
+
+How do you know when to call `panic!` and when to return a `Result`? When you choose to return a Result value, you give the calling code options rather than making the decision for it. The calling code could choose to attempt to recover in a way that’s appropriate for its situation, or it could decide that an Err value in this case is unrecoverable, so it can call panic! and turn your recoverable error into an unrecoverable one. Therefore, returning Result is a good default choice when you’re defining a function that might fail.
+
+## Collections
+
+Rust’s standard library includes a number of very useful data structures called collections. Most other data types represent one specific value, but collections can contain multiple values. Unlike the built-in array and tuple types, the data these collections point to is stored on the heap, which means the amount of data does not need to be known at compile time and can grow or shrink as the program runs. 
+
+We've already spent a lot of time using the `Vec` type in the class examples and projects. As a reminder, vectors can be initialized in multiple ways:
+
+```
+let mut v1 = Vec::new();
+let mut v2 = vec![1, 2, 3];
+```
+
+Elements can be acccessed using `[]`, or with the `.get()` method. 
+
+```
+fn main() {
+
+    let num = vec![10, 20];
+    
+    for x in num.iter() {
+        println!("{}", x);
+    }
+    
+    println!("num[0]: {}", num[0]);
+    println!("num[1]: {}", num[1]);
+    println!("num[2]: {}", num.get(0).unwrap());
+    println!("num[3]: {}", num.get(1).unwrap());
+}
+```
+
+So what's the difference between using `[]` and using `.get()`? The difference is that `.get()` returns an `Option`, as introduced earlier. 
+
+```
+fn main() {
+
+    let num = vec![10, 20];
+
+    println!("num[0]: {}", num[0]);
+    println!("num[1]: {}", num[1]);
+    println!("num[2]: {}", num.get(0).unwrap());
+    println!("num[3]: {}", num.get(1).unwrap());
+    
+    if let Some(num) = num.get(2) {
+        println!("Found a value at index");
+    } else {
+        println!("Found no value at index");
+    }
+}
+```
+
+In this example, `num.get(2)` will return `None`. 
+
+If we access the element using `[]`, however, our program will panic.
+
+```
+fn main() {
+
+    let num = vec![10, 20];
+
+    println!("num[0]: {}", num[0]);
+    println!("num[1]: {}", num[1]);
+    println!("num[2]: {}", num.get(0).unwrap());
+    println!("num[3]: {}", num.get(1).unwrap());
+    
+    let temp = num[2];
+}
+```
 

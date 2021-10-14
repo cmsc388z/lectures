@@ -294,23 +294,23 @@ Similar to Rc, Arc (atomic reference counted) can be used when sharing data acro
 ```rust
 
 fn main() {
-use std::sync::Arc;
-use std::thread;
+    use std::sync::Arc;
+    use std::thread;
 
-// This variable declaration is where its value is specified.
-let apple = Arc::new("the same apple");
+    // This variable declaration is where its value is specified.
+    let apple = Arc::new("the same apple");
 
-for _ in 0..10 {
-    // Here there is no value specification as it is a pointer to a reference
-    // in the memory heap.
-    let apple = Arc::clone(&apple);
+    for _ in 0..10 {
+        // Here there is no value specification as it is a pointer to a reference
+        // in the memory heap.
+        let apple = Arc::clone(&apple);
 
-    thread::spawn(move || {
-        // As Arc was used, threads can be spawned using the value allocated
-        // in the Arc variable pointer's location.
-        println!("{:?}", apple);
-    });
-}
+        thread::spawn(move || {
+            // As Arc was used, threads can be spawned using the value allocated
+            // in the Arc variable pointer's location.
+            println!("{:?}", apple);
+        });
+    }
 }
 ```
 

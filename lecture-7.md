@@ -21,6 +21,76 @@ fn main() {
 
 We define the variable b to have the value of a Box that points to the value 5, which is allocated on the heap. This program will print b = 5; in this case, we can access the data in the box similar to how we would if this data were on the stack. Just like any owned value, when a box goes out of scope, as b does at the end of main, it will be deallocated. The deallocation happens for the box (stored on the stack) and the data it points to (stored on the heap).
 
+Boxed values can be dereferenced using the `*` operator, which removes one layer of indirection. Below we have a more complicated example, which we will talk through line by line. 
+
+```rust
+use std::mem;
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+// A Rectangle can be specified by where its top left and bottom right 
+// corners are in space
+#[allow(dead_code)]
+struct Rectangle {
+    top_left: Point,
+    bottom_right: Point,
+}
+
+fn origin() -> Point {
+    Point { x: 0.0, y: 0.0 }
+}
+
+fn boxed_origin() -> Box<Point> {
+    // Allocate this point on the heap, and return a pointer to it
+    Box::new(Point { x: 0.0, y: 0.0 })
+}
+
+fn main() {
+    // (all the type annotations are superfluous)
+    // Stack allocated variables
+    let point: Point = origin();
+    let rectangle: Rectangle = Rectangle {
+        top_left: origin(),
+        bottom_right: Point { x: 3.0, y: -4.0 }
+    };
+
+    // Heap allocated rectangle
+    let boxed_rectangle: Box<Rectangle> = Box::new(Rectangle {
+        top_left: origin(),
+        bottom_right: Point { x: 3.0, y: -4.0 },
+    });
+
+    // The output of functions can be boxed
+    let boxed_point: Box<Point> = Box::new(origin());
+
+    // Double indirection
+    let box_in_a_box: Box<Box<Point>> = Box::new(boxed_origin());
+
+    println!("Point occupies {} bytes on the stack",
+             mem::size_of_val(&point));
+    println!("Rectangle occupies {} bytes on the stack",
+             mem::size_of_val(&rectangle));
+
+    // box size == pointer size
+    println!("Boxed point occupies {} bytes on the stack",
+             mem::size_of_val(&boxed_point));
+    println!("Boxed rectangle occupies {} bytes on the stack",
+             mem::size_of_val(&boxed_rectangle));
+    println!("Boxed box occupies {} bytes on the stack",
+             mem::size_of_val(&box_in_a_box));
+
+    // Copy the data contained in `boxed_point` into `unboxed_point`
+    let unboxed_point: Point = *boxed_point;
+    println!("Unboxed point occupies {} bytes on the stack",
+             mem::size_of_val(&unboxed_point));
+}
+```
+
 ### Recursive Types with Box
 
 At compile time, Rust needs to know how much space a type takes up. One type whose size can’t be known at compile time is a recursive type, where a value can have as part of itself another value of the same type. Because this nesting of values could theoretically continue infinitely, Rust doesn’t know how much space a value of a recursive type needs. However, boxes have a known size, so by inserting a box in a recursive type definition, you can have recursive types.

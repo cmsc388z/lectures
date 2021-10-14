@@ -101,7 +101,7 @@ impl<T> MyBox<T> {
 
 Here we have a basic struct MyBox, for which the new method creates a new box with an element of type T. We can allow this type to be dereferenced by implementing the `Deref` trait.
 
-```
+```rust
 use std::ops::Deref;
 
 impl<T> Deref for MyBox<T> {
@@ -246,6 +246,66 @@ fn main() {
         println!("count after creating c = {}", Rc::strong_count(&a));
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+}
+```
+
+### Implicit Deref Coercions
+
+Deref coercion is a convenience that Rust performs on arguments to functions and methods. Deref coercion works only on types that implement the Deref trait. Deref coercion converts such a type into a reference to another type. For example, deref coercion can convert &String to &str because String implements the Deref trait such that it returns &str. Deref coercion happens automatically when we pass a reference to a particular type’s value as an argument to a function or method that doesn’t match the parameter type in the function or method definition. A sequence of calls to the deref method converts the type we provided into the type the parameter needs.
+
+Deref coercion was added to Rust so that programmers writing function and method calls don’t need to add as many explicit references and dereferences with & and *. The deref coercion feature also lets us write more code that can work for either references or smart pointers.
+
+To see an example, we can sue our MyBox type.
+
+```rust
+fn main() {
+    let m = MyBox::new(String::from("Rust"));
+    hello(&m);
+}
+```
+
+Here we’re calling the hello function with the argument &m, which is a reference to a MyBox value. Because we implemented the Deref trait on MyBox, Rust can turn &MyBox into &String by calling deref. The standard library provides an implementation of Deref on String that returns a string slice, and this is in the API documentation for Deref. Rust calls deref again to turn the &String into &str, which matches the hello function’s definition.
+
+If Rust didn't implement deref coercion, we would have to write the following code.
+
+```rust
+fn main() {
+    let m = MyBox::new(String::from("Rust"));
+    hello(&(*m)[..]);
+}
+```
+
+Similar to how you use the Deref trait to override the * operator on immutable references, you can use the DerefMut trait to override the * operator on mutable references. Rust does deref coercion when it finds types and trait implementations in three cases:
+
+ - From `&T` to `&U` when `T: Deref<Target=U>`
+ - From `&mut T` to `&mut U` when `T: DerefMut<Target=U>`
+ - From `&mut T` to `&U` when `T: Deref<Target=U>`
+
+
+### Arc
+
+Similar to Rc, Arc (atomic reference counted) can be used when sharing data across threads. This struct, via the Clone implementation can create a reference pointer for the location of a value in the memory heap while increasing the reference counter. As it shares ownership between threads, when the last reference pointer to a value is out of scope, the variable is dropped.
+
+```rust
+
+fn main() {
+use std::sync::Arc;
+use std::thread;
+
+// This variable declaration is where its value is specified.
+let apple = Arc::new("the same apple");
+
+for _ in 0..10 {
+    // Here there is no value specification as it is a pointer to a reference
+    // in the memory heap.
+    let apple = Arc::clone(&apple);
+
+    thread::spawn(move || {
+        // As Arc was used, threads can be spawned using the value allocated
+        // in the Arc variable pointer's location.
+        println!("{:?}", apple);
+    });
+}
 }
 ```
 

@@ -1,10 +1,44 @@
-# Interior mutability, type markers and phantom types
+# Lecture 8
+
+## Project Introduction
+
+### Project introduction
+In this project, you will work with your teammate(s) to achieve some programming tasks. 30% of your final grade will come from this project. You and your teammate(s) need to propose the project you would like to work on together. The due date for this project is Dec 10 at noon.
+
+### Goals
+You are welcome to choose any project that you and your teammate(s) are interested in. It could be something you have implemented in another programming language (e.g., your Ruby project from CMSC330 or your C project from CMSC260), or some project you found from the internet that is not written in Rust. You can also fix an issue or bug of an existing rust crate or add some new functionalities to an existing crate. If you want to solve some open questions in Rust, the Are We X Yet project is a good starting point.
+
+### Groups
+You must form a group of 2-3 students enrolled in this course. If you have a project idea and you're not able to convince two other people to work on it, it's probably not that interesting. You should instead join another group.
+
+### Workload
+Your group will have five weeks to do the project. Each week, each group member should spend 2 hours on the project. The size of your proposed project should be linearly correlated with the number of people in your group. If your group has two members, your project should be five times larger than a homework assignment. If your group has three members, your project should be 7.5 times larger than a homework assignment. This is because our bi-weekly homework assignments are designed to take 4 hours to complete.
+
+### Important deadlines:
+ - Nov 5 - Project proposal due
+ - Nov 19 - Project milestone #1 due
+ - Dec 10 - Final write-up due
+
+### Project Proposal:
+Each group needs to submit the proposal once. Except you have a very good reason, you should limit the proposal to one page. You need to describe the following aspects of your proposed project:
+ - The title of your project
+ - Team members
+ - Background (Your readers might not have the background knowledge of the area you want to work on)
+ - Introduction
+ - Goals (high-bar and low-bar)
+ - Specific aims and objectives 
+ - Cited references
+
+### Notes: 
+ - Meet with your teammates frequently (at least once a week).
+ - Work together. Please don’t try to divide the project into independent tasks and assign them to your group members. You will have lots of problems when merging them together. So, please do teamwork.
+ - Compile frequently.
+ - Write unit tests.
+ - Ask for help if you are stuck for more than two hours.
+
+## RefCell and Interior Mutability
 
 Source: [Rust book](https://doc.rust-lang.org/book/ch15-05-interior-mutability.html), [Additional notes](https://ricardomartins.cc/2016/06/08/interior-mutability)
-
-## Project introduction
-
-Project details.
 
 ## `RefCell<T>`
 

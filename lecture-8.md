@@ -6,10 +6,10 @@
 In this project, you will work with your teammate(s) to achieve some programming tasks. 30% of your final grade will come from this project. You and your teammate(s) need to propose the project you would like to work on together. The due date for this project is Dec 10 at noon.
 
 ### Goals
-You are welcome to choose any project that you and your teammate(s) are interested in. It could be something you have implemented in another programming language (e.g., your Ruby project from CMSC330 or your C project from CMSC260), or some project you found from the internet that is not written in Rust. You can also fix an issue or bug of an existing rust crate or add some new functionalities to an existing crate. If you want to solve some open questions in Rust, the Are We X Yet project is a good starting point.
+You are welcome to choose any project that you and your teammate(s) are interested in. It could be something you have implemented in another programming language (e.g., your Ruby project from CMSC330 or your C project from CMSC260), or some project you found from the internet that is not written in Rust. You can also fix an issue or bug of an existing Rust crate or add some new functionality to an existing crate. If you want to solve some open questions in Rust, the Are We X Yet project is a good starting point.
 
 ### Groups
-You must form a group of 2-3 students enrolled in this course. If you have a project idea and you're not able to convince two other people to work on it, it's probably not that interesting. You should instead join another group.
+You must form a group of 2-3 students enrolled in this course. If you have a project idea and you're not able to convince one or two other people to work on it, you should instead join another group.
 
 ### Workload
 Your group will have five weeks to do the project. Each week, each group member should spend 2 hours on the project. The size of your proposed project should be linearly correlated with the number of people in your group. If your group has two members, your project should be five times larger than a homework assignment. If your group has three members, your project should be 7.5 times larger than a homework assignment. This is because our bi-weekly homework assignments are designed to take 4 hours to complete.
@@ -20,21 +20,21 @@ Your group will have five weeks to do the project. Each week, each group member 
  - Dec 10 - Final write-up due
 
 ### Project Proposal:
-Each group needs to submit the proposal once. Except you have a very good reason, you should limit the proposal to one page. You need to describe the following aspects of your proposed project:
- - The title of your project
- - Team members
- - Background (Your readers might not have the background knowledge of the area you want to work on)
- - Introduction
- - Goals (high-bar and low-bar)
- - Specific aims and objectives 
- - Cited references
+Each group needs to submit the proposal once. Unless you have a very good reason, you should limit the proposal to one page. You need to describe the following aspects of your proposed project:
+1. The title of your project
+2. Team members
+3. Introduction and background (your readers might not have the background knowledge of the area you want to work on)
+4. Goals. Include a 100% goal, representing what you expect to achieve, a 75% goal (if things go slower than expected), and a 125% goal (if the project turns out to be easier than you thought). You can earn an A even if you only achieve your 75% goal if you justify why the project turned out to be harder than you thought.
+5. Specific aims and objectives 
+6. Cited references
 
 ### Notes: 
  - Meet with your teammates frequently (at least once a week).
- - Work together. Please don’t try to divide the project into independent tasks and assign them to your group members. You will have lots of problems when merging them together. So, please do teamwork.
+ - Work together. Please don’t try to divide the project into independent tasks and assign them to your group members. You will have lots of problems when merging them together. We expect you to use a Git repository to manage your work and commit frequently.
  - Compile frequently.
- - Write unit tests.
+ - Write unit and integration tests.
  - Ask for help if you are stuck for more than two hours.
+
 
 ## RefCell and Interior Mutability
 

@@ -564,3 +564,19 @@ impl ThreadBuilder {
 }
 ```
 
+One-liners work as before, because ownership is threaded through each of the builder methods until being consumed by spawn. Complex configuration, however, is more verbose: it requires re-assigning the builder at each step.
+
+```rust
+// One-liners
+ThreadBuilder::new().named("my_thread").spawn(proc() { ... });
+
+// Complex configuration
+let mut thread = ThreadBuilder::new();
+thread = thread.named("my_thread_2"); // must re-assign to retain ownership
+
+if reroute {
+    thread = thread.stdout(mywriter);
+}
+
+thread.spawn(proc() { ... });
+```

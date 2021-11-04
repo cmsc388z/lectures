@@ -409,7 +409,7 @@ Note, that with the simple implementation of this next method, we can use variou
     }
 ```
 
-### Other iterator methods
+### Various iterator methods
 
 There are other methods implemented on iterators within rust that are similar to one used in functional programming langauges. Some examples of these include map, fold, sum, filter, zip, etc. 
 
@@ -449,10 +449,118 @@ let doubled: Vec<i32> = a.iter()
 assert_eq!(vec![2, 4, 6], doubled);
 ```
 
+A longer list of these functions can be found [here](https://doc.rust-lang.org/std/iter/trait.Iterator.html).
+
 ## The Builder Pattern
 
+Some data structures are complicated to construct, due to their construction needing:
 
+ - a large number of inputs
+ - compound data (e.g. slices)
+ - optional configuration data
+ - choice between several flavors
+ - which can easily lead to a large number of distinct constructors with many arguments each.
 
-# Example
+In these cases you may want to create a builder for the type. You can do this by introducing  a separate data type TBuilder for incrementally configuring a T value (though when possible, choose a better name.) The builder constructor should take as parameters only the data required to to make a T, and the builder should offer a suite of convenient methods for configuration, including setting up compound inputs (like slices) incrementally. Finally, the builder should provide one or more "_terminal_" methods for actually building a T.
 
-https://subscription.packtpub.com/book/application_development/9781788623926/1/ch01lvl1sec17/using-the-builder-pattern
+In Rust, there are two variants of the builder pattern, differing in the treatment of ownership, as described below.
+
+### Non-comsuming builders
+
+In some cases, constructing the final T does not require the builder itself to be consumed. The follow variant on std::io::process::Command is one example:
+
+```rust
+// NOTE: the actual Command API does not use owned Strings;
+// this is a simplified version.
+
+pub struct Command {
+    program: String,
+    args: Vec<String>,
+    cwd: Option<String>,
+    // etc
+}
+
+impl Command {
+    pub fn new(program: String) -> Command {
+        Command {
+            program: program,
+            args: Vec::new(),
+            cwd: None,
+        }
+    }
+
+    /// Add an argument to pass to the program.
+    pub fn arg<'a>(&'a mut self, arg: String) -> &'a mut Command {
+        self.args.push(arg);
+        self
+    }
+
+    /// Add multiple arguments to pass to the program.
+    pub fn args<'a>(&'a mut self, args: &[String])
+                    -> &'a mut Command {
+        self.args.push_all(args);
+        self
+    }
+
+    /// Set the working directory for the child process.
+    pub fn cwd<'a>(&'a mut self, dir: String) -> &'a mut Command {
+        self.cwd = Some(dir);
+        self
+    }
+
+    /// Executes the command as a child process, which is returned.
+    pub fn spawn(&self) -> IoResult<Process> {
+        ...
+    }
+}
+```
+
+Note that the spawn method, which actually uses the builder configuration to spawn a process, takes the builder by immutable reference. This is possible because spawning the process does not require ownership of the configuration data. Because the terminal spawn method only needs a reference, the configuration methods take and return a mutable borrow of self.
+
+Since borrows are used throughout, it can be used for one-liner and complex constructions, as shown below.
+
+```rust
+// One-liners
+Command::new("/bin/cat").arg("file.txt").spawn();
+
+// Complex configuration
+let mut cmd = Command::new("/bin/ls");
+cmd.arg(".");
+
+if size_sorted {
+    cmd.arg("-S");
+}
+
+cmd.spawn();
+```
+
+### Comsuming builders
+
+Sometimes builders must transfer ownership when constructing the final type T, meaning that the terminal methods must take self rather than &self:
+
+```rust
+// A simplified excerpt from std::thread::Builder
+
+impl ThreadBuilder {
+    /// Name the thread-to-be. Currently the name is used for identification
+    /// only in failure messages.
+    pub fn named(mut self, name: String) -> ThreadBuilder {
+        self.name = Some(name);
+        self
+    }
+
+    /// Redirect thread-local stdout.
+    pub fn stdout(mut self, stdout: Box<Writer + Send>) -> ThreadBuilder {
+        self.stdout = Some(stdout);
+        //   ^~~~~~ this is owned and cannot be cloned/re-used
+        self
+    }
+
+    /// Creates and executes a new child thread.
+    pub fn spawn(self, f: proc():Send) {
+        // consume self
+        ...
+    }
+}
+```
+

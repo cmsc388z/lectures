@@ -225,8 +225,229 @@ pub trait Iterator {
 }
 ```
 
-Notice this definition uses some new syntax: type Item and Self::Item, which are defining an associated type with this trait. We’ll talk about associated types in depth in Chapter 19. For now, all you need to know is that this code says implementing the Iterator trait requires that you also define an Item type, and this Item type is used in the return type of the next method. In other words, the Item type will be the type returned from the iterator.
+Notice this definition uses some new syntax: type Item and Self::Item, which are defining an associated type with this trait. You can find more information about these in Chapter 19 of the book. For now, all you need to know is that this code says implementing the Iterator trait requires that you also define an Item type, and this Item type is used in the return type of the next method. In other words, the Item type will be the type returned from the iterator.
 
+The Iterator trait only requires implementors to define one method: the next method, which returns one item of the iterator at a time wrapped in Some and, when iteration is over, returns None.
+
+```rust
+    #[test]
+    fn iterator_demonstration() {
+        let v1 = vec![1, 2, 3];
+
+        let mut v1_iter = v1.iter();
+
+        assert_eq!(v1_iter.next(), Some(&1));
+        assert_eq!(v1_iter.next(), Some(&2));
+        assert_eq!(v1_iter.next(), Some(&3));
+        assert_eq!(v1_iter.next(), None);
+    }
+```
+
+Note that we needed to make v1_iter mutable: calling the next method on an iterator changes internal state that the iterator uses to keep track of where it is in the sequence. In other words, this code consumes, or uses up, the iterator. Each call to next eats up an item from the iterator. We didn’t need to make v1_iter mutable when we used a for loop because the loop took ownership of v1_iter and made it mutable behind the scenes.
+
+Also note that the values we get from the calls to next are immutable references to the values in the vector. The iter method produces an iterator over immutable references. If we want to create an iterator that takes ownership of v1 and returns owned values, we can call into_iter instead of iter. Similarly, if we want to iterate over mutable references, we can call iter_mut instead of iter.
+
+### Methods that consume the iterator
+
+Methods can be written to consume the iterator, and these that call next are called consuming adaptors, because calling them uses up the iterator. One example is the sum method, which takes ownership of the iterator and iterates through the items by repeatedly calling next, thus consuming the iterator. As it iterates through, it adds each item to a running total and returns the total when iteration is complete. Listing 13-16 has a test illustrating a use of the sum method.
+
+```rust
+    #[test]
+    fn iterator_sum() {
+        let v1 = vec![1, 2, 3];
+
+        let v1_iter = v1.iter();
+
+        let total: i32 = v1_iter.sum();
+
+        assert_eq!(total, 6);
+    }
+```
+
+We aren’t allowed to use v1_iter after the call to sum because sum takes ownership of the iterator we call it on.
+
+### Methods that Produce Other Iterators
+
+Another kind of method is known as an iterator adaptor, which can allow you to change iterators into different kinds of iterators. You can chain multiple calls to iterator adaptors to perform complex actions in a readable way. But because all iterators are lazy, you have to call one of the consuming adaptor methods to get results from calls to iterator adaptors, as shown below. 
+
+```rust
+    let v1: Vec<i32> = vec![1, 2, 3];
+    v1.iter().map(|x| x + 1);
+```
+
+However, the following code doesn't do anything since the closure we specified never gets called. The reason for this is that iterator adaptors are lazy, and will only consume the iterator when needed. 
+
+We can finish this example as shown below.
+
+```rust
+    let v1: Vec<i32> = vec![1, 2, 3];
+
+    let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+
+    assert_eq!(v2, vec![2, 3, 4]);
+```
+
+### Filter
+
+We can now demonstrate a common use of closures that capture their environment by using the filter iterator adaptor. The filter method on an iterator takes a closure that takes each item from the iterator and returns a Boolean. If the closure returns true, the value will be included in the iterator produced by filter. If the closure returns false, the value won’t be included in the resulting iterator.
+
+In the following example, we use filter with a closure that captures the shoe_size variable from its environment to iterate over a collection of Shoe struct instances. It will return only shoes that are the specified size.
+
+```rust
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String,
+}
+
+fn shoes_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+    shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn filters_by_size() {
+        let shoes = vec![
+            Shoe {
+                size: 10,
+                style: String::from("sneaker"),
+            },
+            Shoe {
+                size: 13,
+                style: String::from("sandal"),
+            },
+            Shoe {
+                size: 10,
+                style: String::from("boot"),
+            },
+        ];
+
+        let in_my_size = shoes_in_size(shoes, 10);
+
+        assert_eq!(
+            in_my_size,
+            vec![
+                Shoe {
+                    size: 10,
+                    style: String::from("sneaker")
+                },
+                Shoe {
+                    size: 10,
+                    style: String::from("boot")
+                },
+            ]
+        );
+    }
+}
+```
+
+### Creating custom iterators
+
+Previously we've created iterators by calling iter, into_iter, or iter_mut on a vector. You can create iterators from the other collection types in the standard library, such as hash map. You can also create iterators that do anything you want by implementing the Iterator trait on your own types. As previously mentioned, the only method you’re required to provide a definition for is the next method. 
+
+Consider the following counter struct.
+
+```rust
+struct Counter {
+    count: u32,
+}
+
+impl Counter {
+    fn new() -> Counter {
+        Counter { count: 0 }
+    }
+}
+```
+
+We can implement an iterator for this struct as shown below.
+
+```rust
+impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.count < 5 {
+            self.count += 1;
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+```
+
+We can use the iterator as shown below.
+
+```rust
+    #[test]
+    fn calling_next_directly() {
+        let mut counter = Counter::new();
+
+        assert_eq!(counter.next(), Some(1));
+        assert_eq!(counter.next(), Some(2));
+        assert_eq!(counter.next(), Some(3));
+        assert_eq!(counter.next(), Some(4));
+        assert_eq!(counter.next(), Some(5));
+        assert_eq!(counter.next(), None);
+    }
+```
+
+Note, that with the simple implementation of this next method, we can use various other methods associated with the iterator trait.
+
+```rust
+    #[test]
+    fn using_other_iterator_trait_methods() {
+        let sum: u32 = Counter::new()
+            .zip(Counter::new().skip(1))
+            .map(|(a, b)| a * b)
+            .filter(|x| x % 3 == 0)
+            .sum();
+        assert_eq!(18, sum);
+    }
+```
+
+### Other iterator methods
+
+There are other methods implemented on iterators within rust that are similar to one used in functional programming langauges. Some examples of these include map, fold, sum, filter, zip, etc. 
+
+The following example uses map, which we've seen before. The map() method applies a function to each element in an iterable and returns the resulting iterable, of each iteration, to the next function.
+
+```rust
+fn main() {
+  let vector = [1, 2, 3];
+  let result = vector.iter().map(|x| x * 2).collect::<Vec<i32>>();
+  // another way to write the above statement 
+  /*let result: Vec<i32> = vector.iter().map(|x| x * 2).collect();*/
+  println!("After mapping: {:?}", result);
+}
+```
+
+The following example uses sum, which takes an iterator and generates Self from the elements by “summing up” the items.
+
+```rust
+let sum: u32 = vec![1, 2, 3, 4, 5, 6].iter().sum();
+```
+
+The following example accomplishes the same thing using fold. Folding is useful whenever you have a collection of something, and want to produce a single value from it.
+
+```rust
+let sum: u32 = vec![1,2,3,4,5,6].iter().fold(0, |sum, &val| {sum += val; sum});
+```
+
+The following example uses collect, which consumes the iterator and collects the resulting values into a collection data type. 
+
+```rust
+let a = [1, 2, 3];
+
+let doubled: Vec<i32> = a.iter()
+                         .map(|&x| x * 2)
+                         .collect();
+
+assert_eq!(vec![2, 4, 6], doubled);
+```
 
 ## The Builder Pattern
 

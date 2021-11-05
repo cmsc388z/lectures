@@ -28,6 +28,8 @@ Each group needs to submit the proposal once. Unless you have a very good reason
 5. Specific aims and objectives 
 6. Cited references
 
+Each group should submit only once on ELMS. 
+
 ### Notes: 
  - Meet with your teammates frequently (at least once a week).
  - Work together. Please don’t try to divide the project into independent tasks and assign them to your group members. You will have lots of problems when merging them together. We expect you to use a Git repository to manage your work and commit frequently.
